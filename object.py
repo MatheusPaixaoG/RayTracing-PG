@@ -47,12 +47,12 @@ class Plane(Object):
                          self.normal_vector)/den
             if t < 0:
                 # "Ray don't intersect the plane!"
-                raise exception()
+                return
             else:
                 return t
         else:
-            raise exception(
-                "Inner product between ray_dir and normal_vector too low")
+            #Inner product between ray_dir and normal_vector too low
+            return
 
 class Sphere(Object):
     def __init__(self, Cr, Cg, Cb, Ox, Oy, Oz, r):
@@ -76,7 +76,8 @@ class Sphere(Object):
         t_ca = np.inner(l, ray_dir)
         d_2 = (np.inner(l, l)) - (t_ca)*(t_ca)
         if d_2 > (self.radius)**2:
-            raise exception("Ray doesn't intersect the sphere!")
+            #Ray doesn't intersect the sphere!"
+            return
         else:
             t_hc = math.sqrt(self.radius**2 - d_2)
             t0 = t_ca - t_hc
@@ -85,7 +86,8 @@ class Sphere(Object):
                 t0,t1 = t1,t0
             if t0 < 0:
                 if t1 < 0:
-                    raise exception("Off-screen intersection with sphere")
+                    # Off-screen intersection with sphere
+                    return None
                 else:
                     return t1
 

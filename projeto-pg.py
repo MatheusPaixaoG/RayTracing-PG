@@ -5,17 +5,6 @@ import matplotlib.pyplot as plt
 
 from object import Plane,Sphere
 
-# INPUT:
-# v_res h_res                      //resolucao vertical e horizontal
-# s d                              //s=largura do pixel |  d= distancia do centro da camera ao plano de exibicao
-# Ex Ey Ez                         // origem do sistema de coordenadas e dos raios primarios
-# Lx Ly Lz                         // para onde a camera aponta
-# upx upy upz                      // vetor que aponta pra cima
-# B.r B.g B.b                      // Cor do Background
-#  k_obj                           // qt de objetos
-# C.r C.g C.b * Ox Oy Oz r         // circulo
-# C.r C.g C.b / Px Py Pz nx ny nz  //plano
-
 objects = []  # Array de objetos
 background_color = np.array([255, 0, 0])  # Cor do plano de fundo (RGB)
 
@@ -31,15 +20,11 @@ def render(v_res, h_res, s, d, E, L, up):
 
     # Lancamento dos raios
     q_00 = E - d * w + s * (((v_res - 1)/2)*v - ((h_res - 1)/2)*u)
-    # print(q_00)
     for i in range(v_res):
         for j in range(h_res):
             q_ij = q_00 + s * (j * u - i * v)
             dir_ray = (q_ij-E)/np.linalg.norm(q_ij - E)
-            # print(q_ij, end=" ")
             image[i][j] = cast(E, dir_ray)
-            # print(j)
-        # print()
     return image
 
 # TODO: testar depois de implementar o trace
@@ -67,12 +52,9 @@ def cast(E, dir_ray):
 def trace(E, dir_ray):
     s = []
     for obj in objects:
-        try:
-            t = obj.intersect(E, dir_ray)
+        t = obj.intersect(E, dir_ray)
+        if t:
             s.append((t, obj))
-        except Exception as e:
-            print(e)
-            pass
     return s
 
 
@@ -105,6 +87,9 @@ def run_by_json(path):
             radius = sphere["radius"]
 
             objects.append(Sphere(r,g,b,cx,cy,cz,radius))
+
+    print("Gerando a imagem ...")
+    print("(Esse processo pode durar alguns minutos)")
 
     # Gera a imagem
     img = render(specs["v_res"],
