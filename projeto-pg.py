@@ -1,4 +1,5 @@
 import numpy as np
+import math
 
 from object import Object
 
@@ -31,7 +32,7 @@ background_color = np.array([255, 0, 0])  # Cor do plano de fundo (RGB)
 
 
 def render(v_res, h_res, s, d, E, L, up):
-    image = np.zeros((v_res, h_res))
+    image = np.zeros((v_res, h_res,3))
 
     # Criacao da base ortonormal {u,v,w}
     w = (E - L) / np.linalg.norm(E - L)
@@ -41,14 +42,15 @@ def render(v_res, h_res, s, d, E, L, up):
 
     # Lancamento dos raios
     q_00 = E - d * w + s * (((v_res - 1)/2)*v - ((h_res - 1)/2)*u)
-    print(q_00)
-    for i in image:
-        for j in i:
+    # print(q_00)
+    for i in range(v_res):
+        for j in range(h_res):
             q_ij = q_00 + s * (j * u - i * v)
             dir_ray = (q_ij-E)/np.linalg.norm(q_ij - E)
-            j = cast(E, dir_ray)
             # print(q_ij, end=" ")
-        print()
+            image[i][j] = cast(E, dir_ray)
+            # print(j)
+        # print()
     return image
 
 # TODO: testar depois de implementar o trace
@@ -59,12 +61,17 @@ def cast(E, dir_ray):
     S = trace(E, dir_ray)
 
     if (S):
-        t, closest = min(S)
-        c = closest.color
+        closest_t = math.inf
+        closest_obj = None
+        
+        for t_obj in S:
+            if t_obj[0] < closest_t:
+                closest_t = t_obj[0]
+                closest_obj = t_obj[1]
+                c = closest_obj.color
     return c
 
 
-objects.append(Object(255, 255, 255, 10, 10, 10, -2, -2, 2))
 # TODO: testar depois de implementar os intersects
 
 
@@ -81,4 +88,10 @@ def trace(E, dir_ray):
 
 # MAIN
 if __name__ == "__main__":
-    render(v_res, h_res, s, d, E, L, up)
+    objects.append(Object(200, 200, 200, 0.0000, 0.0000, 0.0000, 1.0000, 0.0000, 0.0000))
+    img = render(v_res, h_res, s, d, E, L, up)
+
+    img_list = img.tolist()
+
+    for row in img_list:
+        print(row,"\n")

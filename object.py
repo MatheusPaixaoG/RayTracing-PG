@@ -29,6 +29,14 @@ class Object:
     #     self.ray = r
     #     self.type = ObjectType.SPHERE
 
+    def __str__(self):
+        text = ""
+        text += self.color + "\n"
+        text += self.sample_point + "\n"
+        text += self.normal_vector + "\n"
+        text += self.type + "\n"  
+        return text
+
     def intersection(self, ray_origin, ray_dir):
         if self.type == ObjectType.SPHERE:
             return self._intersect_sphere(ray_origin, ray_dir)
@@ -41,9 +49,9 @@ class Object:
         return t
 
     def _intersect_plane(self, ray_origin, ray_dir):
-        print(ray_origin)
-        print(ray_dir)
-        print(self.normal_vector)
+        # print(ray_origin)
+        # print(ray_dir)
+        # print(self.normal_vector)
         t = math.inf
         den = np.inner(ray_dir, self.normal_vector)
         if abs(den) > Object.e:
