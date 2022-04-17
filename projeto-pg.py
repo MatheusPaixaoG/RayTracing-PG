@@ -1,5 +1,6 @@
 import numpy as np
 import math
+import json
 
 from object import Object
 
@@ -13,19 +14,6 @@ from object import Object
 #  k_obj                           // qt de objetos
 # C.r C.g C.b * Ox Oy Oz r         // circulo
 # C.r C.g C.b / Px Py Pz nx ny nz  //plano
-
-# Variaveis da Tela
-v_res = 4  # Altura vertical da tela
-h_res = 3  # Largura da tela
-s = 10       # Tamanho de um pixel
-d = 5        # Distancia da camera ao plano de exibicao
-
-# Variaveis da camera
-
-# origem do sistema de coordenadas e dos raios primarios (vulgo camera),
-E = np.array([2, 2, 2])
-L = np.array([4.67, 4.67, -0.67])  # para onde a camera aponta
-up = np.array([0, 0, 1])  # vetor que aponta pra cima
 
 objects = []  # Array de objetos
 background_color = np.array([255, 0, 0])  # Cor do plano de fundo (RGB)
@@ -86,14 +74,47 @@ def trace(E, dir_ray):
     return s
 
 
+def run_by_json(path):
+    # Carrega o json em specs 
+    file = open(path)
+    specs = json.load(file)
+    file.close()
+
+    # Define a cor do background
+    global background_color
+    background_color = specs["background_color"]
+
+    # Pega cada objeto do JSON e os coloca no array objects
+    objects_json = specs["objects"]
+
+    for obj in objects_json:
+        r,g,b = obj["color"]
+        
+        if obj.get("plane"): # Se o objeto for um plano ...
+            plane = obj["plane"]
+            sx,sy,sz = plane["sample"]
+            nx,ny,nz = plane["normal"]
+
+            objects.append(Object(r,g,b,sx,sy,sz,nx,ny,nz))
+
+    # Gera a imagem
+    img = render(specs["v_res"],
+                 specs["h_res"],
+                 specs["square_side"],
+                 specs["dist"],
+                 np.array(specs["eye"]),
+                 np.array(specs["look_at"]),
+                 np.array(specs["up"]))
+
+    return img
+
 # MAIN
 if __name__ == "__main__":
-    objects.append(Object(200, 200, 200, 0.0000, 0.0000, 0.0000, 1.0000, 0.0000, 0.0000))
-    print(objects[0])
-    
-    img = render(v_res, h_res, s, d, E, L, up)
-
+    path = input()           # Pega o caminho do arquivo json (não funciona passando como argumento pro terminal)
+    img = run_by_json(path)  # Retorna a imagem a partir dos valores do cmd
+                 
+    # Imprime a cor de cada píxel da imagem
     img_list = img.tolist()
 
     for row in img_list:
-        print(row,"\n")
+        print(row,"\n\n")
