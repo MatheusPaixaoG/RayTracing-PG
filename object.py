@@ -31,10 +31,16 @@ class Object:
 
     def __str__(self):
         text = ""
-        text += self.color + "\n"
-        text += self.sample_point + "\n"
-        text += self.normal_vector + "\n"
-        text += self.type + "\n"  
+        text += "{" + str(self.type.name) +":"               + "\n"
+
+        if self.type == ObjectType.PLANE:
+            text += "Sample Point: " + str(self.sample_point)    + "\n"
+            text += "Normal: " + str(self.normal_vector)         + "\n"
+            text += "Color: " + str(self.color) + "}"            + "\n"
+        else:
+            #TODO: __str__ da esfera
+            pass
+        
         return text
 
     def intersection(self, ray_origin, ray_dir):

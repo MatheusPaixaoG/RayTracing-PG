@@ -89,6 +89,8 @@ def trace(E, dir_ray):
 # MAIN
 if __name__ == "__main__":
     objects.append(Object(200, 200, 200, 0.0000, 0.0000, 0.0000, 1.0000, 0.0000, 0.0000))
+    print(objects[0])
+    
     img = render(v_res, h_res, s, d, E, L, up)
 
     img_list = img.tolist()
