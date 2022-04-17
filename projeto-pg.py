@@ -1,8 +1,9 @@
 import numpy as np
 import math
 import json
+import matplotlib.pyplot as plt
 
-from object import Object
+from object import Plane,Sphere
 
 # INPUT:
 # v_res h_res                      //resolucao vertical e horizontal
@@ -20,7 +21,7 @@ background_color = np.array([255, 0, 0])  # Cor do plano de fundo (RGB)
 
 
 def render(v_res, h_res, s, d, E, L, up):
-    image = np.zeros((v_res, h_res,3))
+    image = np.zeros((v_res, h_res,3),dtype=np.uint8)
 
     # Criacao da base ortonormal {u,v,w}
     w = (E - L) / np.linalg.norm(E - L)
@@ -67,9 +68,10 @@ def trace(E, dir_ray):
     s = []
     for obj in objects:
         try:
-            t = obj.intersection(E, dir_ray)
+            t = obj.intersect(E, dir_ray)
             s.append((t, obj))
-        except:
+        except Exception as e:
+            print(e)
             pass
     return s
 
@@ -95,7 +97,14 @@ def run_by_json(path):
             sx,sy,sz = plane["sample"]
             nx,ny,nz = plane["normal"]
 
-            objects.append(Object(r,g,b,sx,sy,sz,nx,ny,nz))
+            objects.append(Plane(r,g,b,sx,sy,sz,nx,ny,nz))
+
+        elif obj.get("sphere"):
+            sphere = obj["sphere"]
+            cx,cy,cz = sphere["center"]
+            radius = sphere["radius"]
+
+            objects.append(Sphere(r,g,b,cx,cy,cz,radius))
 
     # Gera a imagem
     img = render(specs["v_res"],
@@ -112,9 +121,7 @@ def run_by_json(path):
 if __name__ == "__main__":
     path = input()           # Pega o caminho do arquivo json (não funciona passando como argumento pro terminal)
     img = run_by_json(path)  # Retorna a imagem a partir dos valores do cmd
-                 
-    # Imprime a cor de cada píxel da imagem
-    img_list = img.tolist()
 
-    for row in img_list:
-        print(row,"\n\n")
+    # Plota a imagem resultante    
+    plt.imshow(img)
+    plt.show()
