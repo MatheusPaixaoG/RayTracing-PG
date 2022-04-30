@@ -10,20 +10,28 @@ class ObjectType(enum.Enum):
 
 class Object:
     ''''Represents an object on the scene'''
-    e = 10 ^ (-6)  # constante para evitar erros da aritmetica de ponto flutuante
+    e = 10 ** (-6)  # constante para evitar erros da aritmetica de ponto flutuante
 
-    def __init__(self, Cr, Cg, Cb):
-        self.color = np.array([Cr, Cg, Cb])
+    def __init__(self, Color_r, Color_g, Color_b, K_a, K_d, K_s, exp):
+        self.color = np.array([Color_r, Color_g, Color_b])
         self.type = None
+        self.k_a = K_a
+        self.k_d = K_d
+        self.k_s = K_s
+        self.exp = exp
 
     @abc.abstractmethod
     def intersect(self, ray_origin, ray_dir):
-        return
+        pass
 
+    @abc.abstractmethod
+    def get_normal(self, point_on_object):
+        pass
 
 class Plane(Object):
-    def __init__(self, Cr, Cg, Cb, Px, Py, Pz, Nx, Ny, Nz):
-        super().__init__(Cr, Cg, Cb)
+    def __init__(self, Color_r, Color_g, Color_b, Px, Py, Pz, Nx, Ny, Nz, K_a, K_d, K_s, exp):
+        '''Create a plane receiving its color, a sample point and its normal vector'''
+        super().__init__(Color_r, Color_g, Color_b, K_a, K_d, K_s, exp)
         self.sample_point = np.array([Px, Py, Pz])
         self.normal_vector = np.array([Nx, Ny, Nz])
         self.type = ObjectType.PLANE
@@ -54,20 +62,26 @@ class Plane(Object):
             #Inner product between ray_dir and normal_vector too low
             return
 
-class Sphere(Object):
-    def __init__(self, Cr, Cg, Cb, Ox, Oy, Oz, r):
-        super().__init__(Cr, Cg, Cb)
+    def get_normal(self, point_on_object=None):
+        '''Returns the normalized norm of the plane'''
+        norm =  np.linalg.norm(self.normal_vector)
+        return self.normal_vector/norm
+
+class Sphere(Object):       
+    def __init__(self, Color_r, Color_g, Color_b, Ox, Oy, Oz, r, K_a, K_d, K_s, exp):
+        '''Create a sphere receiving its color and center'''
+        super().__init__(Color_r, Color_g, Color_b, K_a, K_d, K_s, exp)
         self.center = np.array([Ox, Oy, Oz])
         self.radius = r
         self.type = ObjectType.SPHERE
 
     def __str__(self):
         text = ""
-        text += "{" + str(self.type.name) +":"               + "\n"
+        text += "{" + str(self.type.name) +":"    + "\n"
 
-        text += "Center: " + str(self.center)    + "\n"
-        text += "radius: " + str(self.radius)         + "\n"
-        text += "Color: " + str(self.color) + "}"            + "\n"
+        text += "Center: " + str(self.center)     + "\n"
+        text += "radius: " + str(self.radius)     + "\n"
+        text += "Color: " + str(self.color) + "}" + "\n"
 
         return text
 
@@ -86,9 +100,15 @@ class Sphere(Object):
                 t0,t1 = t1,t0
             if t0 < 0:
                 if t1 < 0:
-                    # Off-screen intersection with sphere
+                    # Off-sColor_reen intersection with sphere
                     return None
                 else:
                     return t1
 
             return t0
+
+    def get_normal(self, point_on_object):
+        center = self.center
+        center_to_point_vec = point_on_object - center
+        norm = np.linalg.norm(center_to_point_vec)
+        return center_to_point_vec/norm
