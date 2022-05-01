@@ -77,8 +77,11 @@ def render(v_res, h_res, tamanho_px, dist_focal, foco_camera, mira_camera, up):
         for j in range(h_res):
             q_ij = q_00 + tamanho_px * (j * u - i * v)
             dir_ray = (q_ij-foco_camera)/np.linalg.norm(q_ij - foco_camera)
-            image[i][j] = cast(foco_camera, dir_ray) * \
-                np.array([255, 255, 255])
+            pixel_color = cast(foco_camera, dir_ray)
+            if (max(pixel_color) > 1):
+                pixel_color = pixel_color/max(pixel_color)
+
+            image[i][j] = pixel_color * np.array([255, 255, 255])
     return image
 
 
@@ -171,7 +174,3 @@ def run_by_json(path):
                  np.array(specs["up"]))
 
     return img
-
-# l = np.array([2,2,2])/np.linalg.norm(np.array([2,2,2]))
-# r = reflect(l,np.array([0,1,0]))
-# print(r, np.linalg.norm(r))
