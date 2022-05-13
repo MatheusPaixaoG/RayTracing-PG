@@ -123,19 +123,19 @@ def cast(foco_camera, dir_ray, recursion_level):
         point_color = shade(closest_obj, intersection_point, observer_vec, normal)  
         
         if(recursion_level > 0):
+            reflected_cast = None
+
             # Calcula a contribuição da reflexão na cor do ponto
             if closest_obj.k_r > 0: 
                 reflected_ray = reflect(observer_vec, normal)
                 intersection_point_corrected = intersection_point + e * reflected_ray
 
-                reflected_color = closest_obj.k_r * cast(intersection_point_corrected,
-                                                        reflected_ray, recursion_level-1)
+                reflected_cast = cast(intersection_point_corrected, reflected_ray, recursion_level-1)
+                reflected_color = closest_obj.k_r * reflected_cast
                 point_color = point_color +  reflected_color
 
             # Calcula a contribuição da refração na cor do ponto
             if closest_obj.k_t > 0:
-                # refraction_normal = closest_obj.get_normal(intersection_point_corrected)
-
                 refracted_ray = refract(closest_obj, observer_vec, normal)
                 # Se não ocorrer reflexão total, continue o cálculo
                 if (refracted_ray is not None):
@@ -143,6 +143,12 @@ def cast(foco_camera, dir_ray, recursion_level):
                     refracted_color = closest_obj.k_t * cast(intersection_point_corrected, 
                                                                     refracted_ray, recursion_level - 1)
                     point_color = point_color + refracted_color
+
+                # Realiza a reflexão total se k_r>0
+                elif reflected_cast is not None:
+                    # Compensa a cor que deveria sera adicionada caso kr fosse 1
+                    point_color += (1-closest_obj.k_r) * reflected_cast
+                
     return point_color
 
 
