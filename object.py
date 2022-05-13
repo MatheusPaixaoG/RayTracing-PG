@@ -14,13 +14,16 @@ class Object:
     ''''Represents an object on the scene'''
     e = 10 ** (-6)  # constante para evitar erros da aritmetica de ponto flutuante
 
-    def __init__(self, Color_r, Color_g, Color_b, K_a, K_d, K_s, exp):
+    def __init__(self, Color_r, Color_g, Color_b, K_a, K_d, K_s, exp, K_r, K_t, refraction_index):
         self.color = np.array([Color_r, Color_g, Color_b])
         self.type = None
         self.k_a = K_a
         self.k_d = K_d
         self.k_s = K_s
         self.exp = exp
+        self.k_r = K_r
+        self.k_t = K_t
+        self.refraction_index = refraction_index
 
     @abc.abstractmethod
     def intersect(self, ray_origin, ray_dir):
@@ -32,9 +35,9 @@ class Object:
 
 
 class Plane(Object):
-    def __init__(self, Color_r, Color_g, Color_b, Px, Py, Pz, Nx, Ny, Nz, K_a, K_d, K_s, exp):
+    def __init__(self, Color_r, Color_g, Color_b, Px, Py, Pz, Nx, Ny, Nz, K_a, K_d, K_s, exp, K_r, K_t, refraction_index):
         '''Create a plane receiving its color, a sample point and its normal vector'''
-        super().__init__(Color_r, Color_g, Color_b, K_a, K_d, K_s, exp)
+        super().__init__(Color_r, Color_g, Color_b, K_a, K_d, K_s, exp, K_r, K_t, refraction_index)
         self.sample_point = np.array([Px, Py, Pz])
         self.normal_vector = np.array([Nx, Ny, Nz])
         self.type = ObjectType.PLANE
@@ -71,9 +74,9 @@ class Plane(Object):
 
 
 class Sphere(Object):
-    def __init__(self, Color_r, Color_g, Color_b, Ox, Oy, Oz, r, K_a, K_d, K_s, exp):
+    def __init__(self, Color_r, Color_g, Color_b, Ox, Oy, Oz, r, K_a, K_d, K_s, exp, K_r, K_t, refraction_index):
         '''Create a sphere receiving its color and center'''
-        super().__init__(Color_r, Color_g, Color_b, K_a, K_d, K_s, exp)
+        super().__init__(Color_r, Color_g, Color_b, K_a, K_d, K_s, exp, K_r, K_t, refraction_index)
         self.center = np.array([Ox, Oy, Oz])
         self.radius = r
         self.type = ObjectType.SPHERE
